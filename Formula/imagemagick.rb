@@ -35,6 +35,10 @@ class Imagemagick < Formula
   depends_on "libtool"
   depends_on "xz"
 
+  if MacOS.version > :high_sierra
+    depends_on "libxml2"
+  end
+
   depends_on "jpeg" => :recommended
   depends_on "libpng" => :recommended
   depends_on "libtiff" => :recommended
@@ -117,6 +121,12 @@ class Imagemagick < Formula
     args << "--with-freetype=yes" if build.with? "freetype"
     args << "--enable-zero-configuration" if build.with? "zero-configuration"
     args << "--without-wmf" if build.without? "libwmf"
+
+    # In Mojave, link against Homebrew'd libxml2
+    if MacOS.version > :high_sierra
+      ENV.append "CPPFLAGS", "-I/usr/local/opt/libxml2/include"
+      ENV.append "LDFLAGS", "-L/usr/local/opt/libxml2/lib"
+    end
 
     # versioned stuff in main tree is pointless for us
     inreplace "configure", "${PACKAGE_NAME}-${PACKAGE_VERSION}", "${PACKAGE_NAME}"
